@@ -32,7 +32,7 @@ def send_plant_status_email(status):
     msg['To'] = to_email_addr
     msg['Subject'] = 'Plant Watering Notification'
 
-    server = smtplib.SMTP('smtp.example.com', 587)
+    server = smtplib.SMTP('smtp.qq.com', 587)
     server.starttls()
     server.login(from_email_addr, from_email_pass)
     server.send_message(msg)
@@ -49,9 +49,9 @@ for hour in times:
         reading = GPIO.input(channel)
         readings.append(reading)
         if reading:
-          status = "Water not needed"
-        else:
           status = "You need to water your plant"
+        else:
+          status = "Water not needed"
         send_plant_status_email(status)
         time.sleep(3600)  
 
