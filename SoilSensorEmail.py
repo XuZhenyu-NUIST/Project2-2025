@@ -23,13 +23,14 @@ GPIO.add_event_detect(channel, GPIO.BOTH, bouncetime=300)
 GPIO.add_event_callback(channel, callback)
 
 
-def send_daily_soil_report(max_reading, min_reading):
+
+def send_plant_status_email(status):
     msg = EmailMessage()
-    body = f"Today's maximum moisture reading: {max_reading}\nToday's minimum moisture reading: {min_reading}"
+    body = f"Plant status: {status}"
     msg.set_content(body)
     msg['From'] = from_email_addr
     msg['To'] = to_email_addr
-    msg['Subject'] = 'Daily soil Report'
+    msg['Subject'] = 'Plant Watering Notification'
 
     server = smtplib.SMTP('smtp.example.com', 587)
     server.starttls()
@@ -39,15 +40,20 @@ def send_daily_soil_report(max_reading, min_reading):
     server.quit()
 
 
-moisture_readings = []
-for i in range(5):
-    moisture = GPIO.input(channel)
-    moisture_readings.append(moisture)
-    time.sleep(3600)
 
-max_reading = max(moisture_readings)
-min_reading = min(moisture_readings)
-send_daily_soil_report(max_reading, min_reading)
+readings = []
+times = [0, 6, 12, 18]  
+for hour in times:
+    current_hour = time.localtime().tm_hour
+    if current_hour == hour:
+        reading = GPIO.input(channel)
+        readings.append(reading)
+        if reading:
+          status = "Water not needed"
+        else:
+          status = "You need to water your plant"
+        send_plant_status_email(status)
+        time.sleep(3600)  
 
 while True:
     time.sleep(1)
